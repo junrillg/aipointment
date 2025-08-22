@@ -1,0 +1,17 @@
+{
+  "name": "aipointment-frontend",
+  "version": "1.0.0",
+  "description": "Blazor frontend for the AIpointment application",
+  "main": "index.js",
+  "scripts": {
+    "build": "dotnet build",
+    "start": "dotnet run"
+  },
+  "keywords": [
+    "blazor",
+    "microservices",
+    "appointment"
+  ],
+  "author": "AIpointment Team",
+  "license": "MIT"
+}

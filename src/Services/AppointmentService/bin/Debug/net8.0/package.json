@@ -1,0 +1,18 @@
+{
+  "name": "aipointment-appointment-service",
+  "version": "1.0.0",
+  "description": "Appointment service for the AIpointment application",
+  "main": "index.js",
+  "scripts": {
+    "build": "dotnet build",
+    "start": "dotnet run",
+    "test": "dotnet test"
+  },
+  "keywords": [
+    "microservices",
+    "appointment",
+    ".net"
+  ],
+  "author": "AIpointment Team",
+  "license": "MIT"
+}

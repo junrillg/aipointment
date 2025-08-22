@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # Database for Appointment Service
+  appointment-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appointmentdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - appointment_data:/var/lib/postgresql/data
+    networks:
+      - aipointment-network
+
+  # RabbitMQ for Event-Driven Communication
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - aipointment-network
+
+  # Appointment Service
+  appointment-service:
+    build:
+      context: ./src/Services/AppointmentService
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - DB_CONNECTION_STRING=Server=appointment-db;Database=appointmentdb;User=postgres;Password=password;
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - appointment-db
+      - rabbitmq
+    networks:
+      - aipointment-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./src/Services/NotificationService
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - aipointment-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./src/ApiGateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:80"
+    environment:
+      - APPOINTMENT_SERVICE_BASE_URL=http://appointment-service
+      - NOTIFICATION_SERVICE_BASE_URL=http://notification-service
+    depends_on:
+      - appointment-service
+      - notification-service
+    networks:
+      - aipointment-network
+
+  # Blazor Frontend
+  blazor-frontend:
+    build:
+      context: ./src/Frontend/BlazorApp
+      dockerfile: Dockerfile
+    ports:
+      - "8082:80"
+    environment:
+      - API_GATEWAY_BASE_URL=http://api-gateway
+    depends_on:
+      - api-gateway
+    networks:
+      - aipointment-network
+
+volumes:
+  appointment_data:
+
+networks:
+  aipointment-network:
+    driver: bridge
